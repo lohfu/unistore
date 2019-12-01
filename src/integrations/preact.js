@@ -24,28 +24,29 @@ export function connect(mapStateToProps, actions) {
 			const store = context.store;
 			let state = mapStateToProps(store ? store.getState() : {}, props);
 			const boundActions = actions ? mapActions(actions, store) : { store };
-			let update = () => {
+			let that = this;
+			function update() {
 				let mapped = mapStateToProps(store ? store.getState() : {}, props);
 				for (let i in mapped) if (mapped[i]!==state[i]) {
 					state = mapped;
-					return this.setState({});
+					return that.setState({});
 				}
 				for (let i in state) if (!(i in mapped)) {
 					state = mapped;
-					return this.setState({});
+					return that.setState({});
 				}
-			};
-			this.componentWillReceiveProps = p => {
+			}
+			that.componentWillReceiveProps = p => {
 				props = p;
 				update();
 			};
-			this.componentDidMount = () => {
+			that.componentDidMount = () => {
 				store.subscribe(update);
 			};
-			this.componentWillUnmount = () => {
+			that.componentWillUnmount = () => {
 				store.unsubscribe(update);
 			};
-			this.render = props => h(Child, assign(assign(assign({}, boundActions), props), state));
+			that.render = props => h(Child, assign(assign(assign({}, boundActions), props), state));
 		}
 		return (Wrapper.prototype = new Component()).constructor = Wrapper;
 	};
